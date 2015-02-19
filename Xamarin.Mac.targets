@@ -1,0 +1,8 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(XamarinMacFrameworkRoot)' == ''">
+    <XamarinMacFrameworkRoot>/Library/Frameworks/Xamarin.Mac.framework/Versions/Current</XamarinMacFrameworkRoot>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' != 'Xamarin.Mac'">
+    <AssemblySearchPaths>$(XamarinMacFrameworkRoot)/lib/x86_64/full;$(AssemblySearchPaths)</AssemblySearchPaths>
+  </PropertyGroup>
+</Project>

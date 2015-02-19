@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+#
+# mono-bundler: a basic assembly dependency gatherer
+#
+# Authors:
+#   Aaron Bockover <abock@xamarin.com>
+#
+# Copyright 2015 Xamarin Inc. All rights reserved.
+
+mono_root="$1" && shift
+fx_version="${1//v/}" && shift
+output_dir="$1" && shift
+
+function usage {
+{ cat <<EOF
+error: $*
+
+usage: $0 MONO_ROOT FX_VERSION OUTPUT_DIR ASSEMBLY1 [ASSEMBLIES...]
+
+  MONO_ROOT       root path to a Mono installation (e.g.
+                  /Library/Frameworks/Mono.framework/Versions/Current)
+
+  FX_VERSION      which .NET framework version to use (e.g. v4.5)
+
+  OUTPUT_DIR      where to copy bundled assemblies and dependencies
+
+  ASSEMBLIES      a list of one or more top-level assemblies to process
+
+EOF
+} 1>&2
+	exit 1;
+}
+
+if [ -z "$mono_root" ]; then
+	usage "no MONO_ROOT specified"
+fi
+
+if [ ! -d "$mono_root" ]; then
+	usage "MONO_ROOT directory does not exist (\"$mono_root\")"
+fi
+
+if [ -z "$fx_version" ]; then
+	usage "no FX_VERSION specified"
+fi
+
+if [ -z "$output_dir" ]; then
+	usage "no OUTPUT_DIR specified"
+fi
+
+if [ $# -eq 0 ]; then
+	usage "no assemblies to process specified"
+fi
+
+set -e
+
+search_paths=""
+for asm in $*; do search_paths="$search_paths $(dirname "$asm")"; done
+search_paths="$search_paths $mono_root/lib/mono/$fx_version"
+
+gathered_assemblies=()
+
+function realpath {
+	pushd "$(dirname "$1")" > /dev/null
+	echo "$(pwd -P)/$(basename "$1")"
+	popd > /dev/null
+}
+
+function gather_assembly {
+	assembly="$(realpath "$1")"
+	for existing in "${gathered_assemblies[@]}"; do
+		if [ "$existing" = "$assembly" ]; then
+			return
+		fi
+	done
+	echo "  Resolved: $assembly"
+	gathered_assemblies+=("$assembly")
+	gather_dependencies "$assembly"
+}
+
+function gather_dependencies {
+	for dep in $(monop --refs -r:"$1" | awk -F, '{print$1}'); do
+		dep="$dep.dll"
+		for search_path in $search_paths; do
+			if [ -f "$search_path/$dep" ]; then
+				gather_assembly "$search_path/$dep"
+			fi
+		done
+	done
+}
+
+echo "Resolving assembly dependencies..."
+for asm in $*; do
+	gather_assembly "$asm"
+done
+
+echo "Copying dependencies to output directory..."
+mkdir -p "$output_dir"
+for asm in "${gathered_assemblies[@]}"; do
+	cp "$asm" "$output_dir"
+	[ -f "$asm".mdb ] && cp "$asm".mdb "$output_dir" || true
+done
+
+cp "$mono_root/etc/mono/$fx_version/machine.config" "$output_dir"

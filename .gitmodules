@@ -1,0 +1,6 @@
+[submodule "external/mono"]
+	path = external/mono
+	url = https://github.com/mono/mono
+[submodule "mono/mono"]
+	path = mono/mono
+	url = https://github.com/mono/mono
