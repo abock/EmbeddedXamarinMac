@@ -57,3 +57,25 @@ and linking:
 
 * `/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/libmono-2.0.dylib` **or** the `libmono-2.0.dylib` produced from a custom build
 * `/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/libxammac.dylib`
+
+## Building and Running the Sample
+
+This sample does require a custom Mono and includes a Makefile to help
+with building it. To bootstrap the Mono runtime:
+
+	git submodule update --recursive --init
+	make mono
+
+Once Mono has been built, it will be installed to `mono/install`. From there,
+the sample embedding application can be built and run:
+
+	make
+	make run
+
+Note that the toplevel Makefile in this repository is mostly a wrapper around
+`xcodebuild`. You can open `EmbeddedXamarinMac.xcodeproj` in Xcode and build/
+run like normal.
+
+The Xcode project will invoke `make plugin` to actually compile the C#
+project and bundle the necessary assemblies and native libraries into the
+resulting native `EmbeddedXamarinMac.app`.
