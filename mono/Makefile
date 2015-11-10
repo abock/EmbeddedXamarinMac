@@ -2,7 +2,7 @@ SYSTEM_MONO_FRAMEWORK_PATH=/Library/Frameworks/Mono.framework/Versions/Current
 PATH = $(SYSTEM_MONO_FRAMEWORK_PATH)/bin:/usr/bin:/bin:/usr/sbin:/sbin
 MONO_PATH = mono
 
-MACOSX_VERSION_MIN = 10.9
+MACOSX_VERSION_MIN = 10.11
 XCODE_DEVELOPER_ROOT = /Applications/Xcode.app
 SYSROOT = $(XCODE_DEVELOPER_ROOT)/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(MACOSX_VERSION_MIN).sdk
 
