@@ -2,3 +2,5 @@ build/
 bin/
 obj/
 .*.swp
+EmbeddedXamarinMac.xcodeproj/project.xcworkspace/*
+EmbeddedXamarinMac.xcodeproj/xcuserdata/

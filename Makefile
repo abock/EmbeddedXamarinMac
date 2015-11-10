@@ -1,18 +1,15 @@
 CONFIGURATION = Debug
-MONO_PREFIX = $(CURDIR)/mono/install
 XAMMAC_PREFIX = /Library/Frameworks/Xamarin.Mac.framework/Versions/Current
+MONO_PREFIX = $(XAMMAC_PREFIX)
 
 # these will only be valid when running under xcodebuild (e.g. the 'plugin' target)
 HOST_APP_BUNDLE = $(shell echo $$BUILT_PRODUCTS_DIR/$$FULL_PRODUCT_NAME)
 HOST_APP_FRAMEWORKS = $(HOST_APP_BUNDLE)/Contents/Frameworks
 HOST_APP_MONO_BUNDLE = $(HOST_APP_BUNDLE)/Contents/MonoBundle
 
-.PHONY: all mono host-app plugin run clean
+.PHONY: all host-app plugin run clean
 
 all: host-app
-
-mono:
-	$(MAKE) -C mono
 
 host-app:
 	xcodebuild -project EmbeddedXamarinMac.xcodeproj -configuration $(CONFIGURATION)
@@ -26,10 +23,10 @@ plugin:
 	./mono-bundler $(MONO_PREFIX) v4.5 $(HOST_APP_MONO_BUNDLE) XMPlugin/bin/$(CONFIGURATION)/XMPlugin.dll
 	mkdir -p $(HOST_APP_FRAMEWORKS)
 	cp $(XAMMAC_PREFIX)/lib/libxammac.dylib $(HOST_APP_FRAMEWORKS)
-	cp $(MONO_PREFIX)/lib/libmonosgen-2.0.1.dylib $(HOST_APP_FRAMEWORKS)
-	install_name_tool -id @rpath/libmonosgen-2.0.1.dylib $(HOST_APP_FRAMEWORKS)/libmonosgen-2.0.1.dylib
+	cp $(MONO_PREFIX)/lib/libmonosgen-2.0.dylib $(HOST_APP_FRAMEWORKS)
+	install_name_tool -id @rpath/libmonosgen-2.0.dylib $(HOST_APP_FRAMEWORKS)/libmonosgen-2.0.dylib
 	install_name_tool -id @rpath/libxammac.dylib $(HOST_APP_FRAMEWORKS)/libxammac.dylib
-	install_name_tool -change $(MONO_PREFIX)/lib/libmonosgen-2.0.1.dylib @rpath/libmonosgen-2.0.1.dylib $(HOST_APP_BUNDLE)/Contents/MacOS/EmbeddedXamarinMac
+	install_name_tool -change @executable_path/libmonosgen-2.0.dylib @rpath/libmonosgen-2.0.dylib $(HOST_APP_BUNDLE)/Contents/MacOS/EmbeddedXamarinMac
 	install_name_tool -change libxammac.dylib @rpath/libxammac.dylib $(HOST_APP_BUNDLE)/Contents/MacOS/EmbeddedXamarinMac
 
 run:
