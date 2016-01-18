@@ -23,26 +23,6 @@ The two runtimes consist of:
 
 Both runtimes should be dynamically linked into the host application.
 
-Currently the Mono runtime shipped with Xamarin.Mac does not include full
-profile (desktop) assemblies, rather only the `Xamarin.Mac,v2.0` .NET
-framework which is based on the Xamarin mobile profile (the same base profile
-used for Xamarin.iOS and Xamarin.Android).
-
-If embedders need access to the full .NET framework (e.g.`.NETFramework,v4.5`)
-then a custom Mono runtime must be built. This is demonstrated in the
-[mono/](mono) directory of this repository. When building a custom Mono,
-it is important that the `--enable-native-types` argument be passed to
-`configure`. This enables JIT intrinsic support for the new native types
-introduced in Xamarin.Mac: `nint`, `nuint`, and `nfloat`.
-
-Currently the Mono runtime which can be downloaded from the Mono project
-that is installed at `/Library/Frameworks/Mono.framework` is not suitable
-for Xamarin.Mac as it is 32-bit only and does not support native types.
-
-Embedders who can use the normal Xamarin.Mac .NET framework can simply use
-the Mono runtime and assemblies included in Xamarin.Mac itself and do not
-need to build a custom Mono runtime.
-
 ## Build Configuration
 
 Whether or not your build is configured through Xcode or manually on the
@@ -59,15 +39,6 @@ and linking:
 * `/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/libxammac.dylib`
 
 ## Building and Running the Sample
-
-This sample does require a custom Mono and includes a Makefile to help
-with building it. To bootstrap the Mono runtime:
-
-	git submodule update --recursive --init
-	make mono
-
-Once Mono has been built, it will be installed to `mono/install`. From there,
-the sample embedding application can be built and run:
 
 	make
 	make run
